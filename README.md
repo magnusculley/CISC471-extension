@@ -1,7 +1,7 @@
 # Status
 
-[![.github/workflows/ci.yml](https://github.com/magnusculley/471c/actions/workflows/ci.yml/badge.svg)](https://github.com/magnusculley/471c/actions/workflows/ci.yml)
-[![Coverage](https://codecov.io/gh/magnusculley/471c/branch/main/graph/badge.svg)](https://codecov.io/gh/magnusculley/471c)
+[![.github/workflows/ci.yml](https://github.com/magnusculley/CISC471-extension/actions/workflows/ci.yml/badge.svg)](https://github.com/magnusculley/CISC471-extension/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/magnusculley/CISC471-extension/branch/main/graph/badge.svg)](https://codecov.io/gh/magnusculley/CISC471-extension)
 
 # Contributing 
 
