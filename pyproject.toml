@@ -1,0 +1,48 @@
+[project]
+name = "471c"
+version = "0.1.0"
+description = "Add your description here"
+authors = [{ name = "James Clause", email = "clause@udel.edu" }]
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pdoc>=16.0.0",
+    "pre-commit>=4.5.1",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-html>=4.2.0",
+    "pytest-sugar>=1.1.1",
+    "ruff>=0.14.2",
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+util = { workspace = true }
+l3 = { workspace = true }
+l2 = { workspace = true }
+l1 = { workspace = true }
+l0 = { workspace = true }
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+    "--junitxml=reports/test.xml",
+    "--html=reports/pytest_html/index.html",
+    "--self-contained-html",
+    "--cov",
+    "--cov-branch",
+    "--cov-report=term",
+    "--cov-report=html:reports/coverage_html",
+    "--cov-report=xml:reports/coverage.xml",
+]
+
+[tool.coverage.run]
+omit = ["**/__init__.py", "**/test/**"]
