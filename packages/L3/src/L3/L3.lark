@@ -1,4 +1,4 @@
-program     : "(" PROGRAM "(" parameters ")" term ")"
+program     : PROGRAM "(" parameters "){" term "}"
 parameters  : IDENTIFIER*
 
 term        : let
@@ -15,24 +15,24 @@ term        : let
             | begin
 
 
-let         : "(" LET "(" bindings ")" term ")"
+let         : LET "(" bindings "){" term "}"
 
-letrec      : "(" LETREC "(" bindings ")" term ")"
+letrec      : LETREC bindings "{" term "}"
 
 bindings    : binding*
 binding     : "(" IDENTIFIER term ")"
 
 reference   : IDENTIFIER
 
-abstract    : "(" LAMBDA "(" parameters ")" term ")"
-apply       : "(" term term* ")"
+abstract    : LAMBDA "(" parameters "){" term "}"
+apply       : term "("term* ")"
 immediate   : NUMBER
-primitive   : "(" OPERATOR term term ")"
-branch      : "(" IF "(" COMPARATOR term term ")" term term ")"
-allocate    : "(" ALLOCATE immediate ")"
-load        : "(" LOAD term immediate ")"
-store       : "(" STORE term immediate term ")"
-begin       : "(" BEGIN term+ ")"
+primitive   : "(" term OPERATOR term ")"
+branch      : IF "(" term COMPARATOR term "){" term "}" ELSE "{" term "}"
+allocate    : ALLOCATE "(" immediate ")"
+load        : LOAD"(" term"[" immediate "])"
+store       : STORE "(" term "["immediate"]){" term "}"
+begin       : BEGIN "{" term+ "}"
 
 PROGRAM.2   : "l3"
 LET.2       : "let"
@@ -43,6 +43,7 @@ ALLOCATE.2  : "allocate"
 LOAD.2      : "load"
 STORE.2     : "store"
 BEGIN.2     : "begin"
+ELSE.2      : "else"
 
 //doesn't really need to be token because it's only used in one place, but it makes the grammar more readable, and potentially could be used in more places in the future, so I think it's worth it
 OPERATOR : "+" | "-" | "*" 
