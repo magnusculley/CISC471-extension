@@ -32,7 +32,7 @@ branch      : "(" IF "(" COMPARATOR term term ")" term term ")"
 allocate    : ALLOCATE "(" immediate ")"
 load        : LOAD"(" term"[" immediate "])"
 store       : STORE "(" term "["immediate"]){" term "}"
-begin       : "(" BEGIN term+ ")"
+begin       : BEGIN "{" term+ "}"
 
 PROGRAM.2   : "l3"
 LET.2       : "let"
