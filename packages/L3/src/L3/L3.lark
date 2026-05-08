@@ -27,11 +27,11 @@ reference   : IDENTIFIER
 abstract    : LAMBDA "(" parameters "){" term "}"
 apply       : term "("term* ")"
 immediate   : NUMBER
-primitive   : "(" term OPERATOR term ")"
-branch      : IF "(" term COMPARATOR term "){" term "}" ELSE "{" term "}"
+primitive   : "(" OPERATOR term term ")"
+branch      : IF "(" COMPARATOR term  term "){" term "}" ELSE "{" term "}"
 allocate    : ALLOCATE "(" immediate ")"
 load        : LOAD"(" term"[" immediate "])"
-store       : STORE "(" term "["immediate"]){" term "}"
+store       : STORE "(" term "[" immediate "])" "{" term "}"
 begin       : BEGIN "{" term+ "}"
 
 PROGRAM.2   : "l3"
