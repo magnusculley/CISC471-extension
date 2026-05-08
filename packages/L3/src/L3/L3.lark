@@ -29,9 +29,9 @@ apply       : term "("term* ")"
 immediate   : NUMBER
 primitive   : "(" OPERATOR term term ")"
 branch      : "(" IF "(" COMPARATOR term term ")" term term ")"
-allocate    : "(" ALLOCATE immediate ")"
-load        : "(" LOAD term immediate ")"
-store       : "(" STORE term immediate term ")"
+allocate    : ALLOCATE "(" immediate ")"
+load        : LOAD"(" term"[" immediate "])"
+store       : STORE "(" term "["immediate"]){" term "}"
 begin       : "(" BEGIN term+ ")"
 
 PROGRAM.2   : "l3"
