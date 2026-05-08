@@ -15,17 +15,17 @@ term        : let
             | begin
 
 
-let         : "(" LET "(" bindings ")" term ")"
+let         : LET "(" bindings "){" term "}"
 
-letrec      : "(" LETREC "(" bindings ")" term ")"
+letrec      : LETREC bindings "{" term "}"
 
 bindings    : binding*
 binding     : "(" IDENTIFIER term ")"
 
 reference   : IDENTIFIER
 
-abstract    : "(" LAMBDA "(" parameters ")" term ")"
-apply       : "(" term term* ")"
+abstract    : LAMBDA "(" parameters "){" term "}"
+apply       : term "("term* ")"
 immediate   : NUMBER
 primitive   : "(" OPERATOR term term ")"
 branch      : "(" IF "(" COMPARATOR term term ")" term term ")"
