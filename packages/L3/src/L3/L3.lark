@@ -15,24 +15,24 @@ term        : let
             | begin
 
 
-let         : "(" LET "(" bindings ")" term ")"
+let         : LET "(" bindings ")" "{" term "}"
 
-letrec      : "(" LETREC "(" bindings ")" term ")"
+letrec      : LETREC "(" bindings ")" "{" term "}"
 
 bindings    : binding*
-binding     : "(" IDENTIFIER term ")"
+binding     : IDENTIFIER "=" term
 
 reference   : IDENTIFIER
 
-abstract    : "(" LAMBDA "(" parameters ")" term ")"
-apply       : "(" term term* ")"
+abstract    : LAMBDA "(" parameters ")" "{" term "}"
+apply       : term "(" term* ")"
 immediate   : NUMBER
-primitive   : "(" OPERATOR term term ")"
-branch      : "(" IF "(" COMPARATOR term term ")" term term ")"
-allocate    : "(" ALLOCATE immediate ")"
-load        : "(" LOAD term immediate ")"
-store       : "(" STORE term immediate term ")"
-begin       : "(" BEGIN term+ ")"
+primitive   : term OPERATOR term
+branch      : IF "(" term COMPARATOR term ")" "{" term "}" "else" "{" term "}"
+allocate    : ALLOCATE "("immediate ")"
+load        : LOAD "("term "[" immediate "]" ")"
+store       : STORE "(" term "["immediate "]" ")" "{" term "}"
+begin       : BEGIN "{" term+ "}"
 
 PROGRAM.2   : "l3"
 LET.2       : "let"
