@@ -1,13 +1,15 @@
 program     : PROGRAM "(" parameters ")" "{" term "}"
 parameters  : IDENTIFIER*
 
-term        : let
+?term       : atom
+            | term OPERATOR term -> primitive
+
+atom        : let
             | letrec
             | reference
             | abstract
             | apply
             | immediate
-            | primitive
             | branch
             | allocate
             | load
@@ -25,10 +27,9 @@ binding     : "(" IDENTIFIER term ")"
 reference   : IDENTIFIER
 
 abstract    : LAMBDA "(" parameters ")" "{" term "}"
-apply       : term "(" term* ")"
+apply       : atom "(" term* ")"
 immediate   : NUMBER
-primitive   : OPERATOR term term
-branch      : IF "(" COMPARATOR term  term ")" "{" term "}" "else" "{" term "}"
+branch      : IF "(" COMPARATOR term term ")" "{" term "}" "else" "{" term "}"
 allocate    : ALLOCATE "(" immediate ")"
 load        : LOAD "(" term "[" immediate "]" ")"
 store       : STORE "(" term "[" immediate "]" ")" "{" term "}"

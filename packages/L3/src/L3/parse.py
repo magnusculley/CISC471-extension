@@ -30,6 +30,9 @@ class AstTransformer(Transformer[Token, Program | Term]):
     def NUMBER(self, token: Token) -> int:
         return int(token)
 
+    def OPERATOR(self, token: Token) -> str:
+        return str(token)
+
     # pre processing functions that convert the tokens into the appropriate types for the AST nodes
     # Lark calls these itself when walks through the tree and then I don't have to manually convert everything
 
@@ -57,6 +60,13 @@ class AstTransformer(Transformer[Token, Program | Term]):
         term: Term,
     ) -> Term:
         return term
+
+    @v_args(inline=True)
+    def atom(
+        self,
+        atom: Term,
+    ) -> Term:
+        return atom
 
     @v_args(inline=True)
     def let(
@@ -136,12 +146,12 @@ class AstTransformer(Transformer[Token, Program | Term]):
     @v_args(inline=True)
     def primitive(
         self,
-        operator: Token,
         left: Term,
+        operator: str,
         right: Term,
     ) -> Term:
         return Primitive(
-            operator=str(operator),  # type: ignore
+            operator=operator,  # type: ignore
             left=left,
             right=right,
         )
