@@ -29,7 +29,7 @@ reference   : IDENTIFIER
 abstract    : LAMBDA "(" parameters ")" "{" term "}"
 apply       : atom "(" term* ")"
 immediate   : NUMBER
-branch      : IF "(" COMPARATOR term term ")" "{" term "}" "else" "{" term "}"
+branch      : IF "(" term COMPARATOR term ")" "{" term "}" "else" "{" term "}"
 allocate    : ALLOCATE "(" immediate ")"
 load        : LOAD "(" term "[" immediate "]" ")"
 store       : STORE "(" term "[" immediate "]" ")" "{" term "}"

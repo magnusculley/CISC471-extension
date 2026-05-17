@@ -33,9 +33,12 @@ class AstTransformer(Transformer[Token, Program | Term]):
     def OPERATOR(self, token: Token) -> str:
         return str(token)
 
+    def COMPARATOR(self, token: Token) -> str:
+        return str(token)
+
     # pre processing functions that convert the tokens into the appropriate types for the AST nodes
     # Lark calls these itself when walks through the tree and then I don't have to manually convert everything
-
+    # adding comparator and operator pre processing functions also allows infix operators
     @v_args(inline=True)
     def program(
         self,
@@ -165,14 +168,14 @@ class AstTransformer(Transformer[Token, Program | Term]):
     def branch(
         self,
         _if: Token,
-        operator: Token,
         left: Term,
+        operator: str,
         right: Term,
         consequent: Term,
         otherwise: Term,
     ) -> Term:
         return Branch(
-            operator=str(operator),  # type: ignore
+            operator=operator,  # type: ignore
             left=left,
             right=right,
             consequent=consequent,
