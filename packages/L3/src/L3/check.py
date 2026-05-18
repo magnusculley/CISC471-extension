@@ -7,7 +7,9 @@ from .syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
     Identifier,
     Immediate,
     Let,
@@ -18,6 +20,7 @@ from .syntax import (
     Reference,
     Store,
     Term,
+    Tuple,
 )
 
 type Context = Mapping[Identifier, None]
@@ -107,6 +110,16 @@ def check_term(
             for effect in effects:
                 recur(effect)
             recur(value)
+
+        case Float(value=value):
+            pass
+
+        case Boolean(value=value):
+            pass
+
+        case Tuple(elements=elements):
+            for element in elements:
+                recur(element)
 
 
 def check_program(

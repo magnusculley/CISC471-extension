@@ -7,8 +7,10 @@ from .syntax import (
     Abstract,
     Allocate,
     Apply,
+    Boolean,
     Branch,
     Copy,
+    Float,
     Halt,
     Immediate,
     Load,
@@ -143,6 +145,28 @@ def to_ast_statement(
         case Halt(value=value):  # pragma: no branch
             return [
                 ast.Return(value=load(value)),
+            ]
+
+        case Float(destination=destination, value=value, then=then):
+            return [
+                ast.Assign(targets=[store(destination)], value=ast.Constant(value=value)),
+                *_statement(then),
+            ]
+        case Boolean(destination=destination, value=value, then=then):
+            return [
+                ast.Assign(targets=[store(destination)], value=ast.Constant(value=value)),
+                *_statement(then),
+            ]
+        case Tuple(destination=destination, elements=elements, then=then):
+            return [
+                ast.Assign(
+                    targets=[store(destination)],
+                    value=ast.Tuple(
+                        elts=[load(element) for element in elements],
+                        ctx=ast.Load(),
+                    ),
+                ),
+                *_statement(then),
             ]
 
 

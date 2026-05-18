@@ -80,6 +80,15 @@ def free_identifiers(statement: L1.Statement, bound: set[L1.Identifier]) -> list
         case L1.Halt(value=value):
             return [] if value in bound else [value]
 
+        case L1.Float(value=value, then=then):
+            return recur(then, {destination, *bound})
+
+        case L1.Boolean(value=value, then=then):
+            return recur(then, {destination, *bound})
+
+        case L1.Tuple(elements=elements, then=then):
+            ...
+
         case _:  # pragma: no cover
             raise ValueError(statement)
 
@@ -205,6 +214,30 @@ def close_statement(
 
         case L1.Halt(value=value):
             return L0.Halt(value=value)
+
+        case L1.Float(value=value, then=then):
+            next_context = dict(context)
+            next_context.pop(destination, None)
+            return L0.Float(
+                value=value,
+                then=recur(then, next_context, procedures),
+            )
+
+        case L1.Boolean(value=value, then=then):
+            next_context = dict(context)
+            next_context.pop(destination, None)
+            return L0.Boolean(
+                value=value,
+                then=recur(then, next_context, procedures),
+            )
+
+        case L1.Tuple(elements=elements, then=then):
+            next_context = dict(context)
+            next_context.pop(destination, None)
+            return L0.Tuple(
+                elements=elements,
+                then=recur(then, next_context, procedures),
+            )
 
         case _:  # pragma: no cover
             raise ValueError(statement)

@@ -185,6 +185,22 @@ def cps_convert_term(
         case _:  # pragma: no cover
             raise ValueError(term)
 
+        case L2.Float(value=value):
+            destination = fresh("t")
+            return L1.Float(
+                destination=destination,
+                value=value,
+                then=k(destination),
+            )
+
+        case L2.Boolean(value=value):
+            destination = fresh("t")
+            return L1.Boolean(
+                destination=destination,
+                value=value,
+                then=k(destination),
+            )
+
 
 def cps_convert_terms(
     terms: Sequence[L2.Term],

@@ -87,6 +87,12 @@ def eliminate_letrec_term(
                 value=recur(value),
             )
 
+        case L3.Float(value=value):
+            return L2.Float(value=value)
+
+        case L3.Boolean(value=value):
+            return L2.Boolean(value=value)
+
 
 def eliminate_letrec_program(
     program: L3.Program,

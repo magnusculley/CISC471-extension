@@ -21,7 +21,7 @@ class Procedure(BaseModel, frozen=True):
 
 
 type Statement = Annotated[
-    Copy | Immediate | Primitive | Branch | Allocate | Load | Store | Address | Call | Halt,
+    Copy | Immediate | Primitive | Branch | Allocate | Load | Store | Address | Call | Halt | Boolean | Float | Tuple,
     Field(discriminator="tag"),
 ]
 
@@ -97,3 +97,25 @@ class Call(BaseModel, frozen=True):
 class Halt(BaseModel, frozen=True):
     tag: Literal["halt"] = "halt"
     value: Identifier
+
+
+# new types
+class Boolean(BaseModel, frozen=True):
+    tag: Literal["boolean"] = "boolean"
+    destination: Identifier
+    value: bool
+    then: Statement
+
+
+class Float(BaseModel, frozen=True):
+    tag: Literal["float"] = "float"
+    destination: Identifier
+    value: float
+    then: Statement
+
+
+class Tuple(BaseModel, frozen=True):
+    tag: Literal["tuple"] = "tuple"
+    destination: Identifier
+    elements: Sequence[Term]
+    then: Statement

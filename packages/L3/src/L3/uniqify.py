@@ -102,6 +102,17 @@ def uniqify_term(
                 value=_term(value, context),
             )
 
+        case Float(value=value):
+            return term
+
+        case Boolean(value=value):
+            return term
+
+        case Tuple(elements=elements):
+            return Tuple(
+                elements=[_term(element, context) for element in elements],
+            )
+
 
 def uniqify_program(
     program: Program,

@@ -29,7 +29,10 @@ type Term = Annotated[
     | LetRec
     | Boolean
     | Tuple
-    | Float,
+    | Float
+    | Boolean
+    | Float
+    | Tuple,
     Field(discriminator="tag"),
 ]
 
@@ -121,3 +124,19 @@ class Tuple(BaseModel, frozen=True):
 class Float(BaseModel, frozen=True):
     tag: Literal["float"] = "float"
     value: float
+
+
+# new types
+class Boolean(BaseModel, frozen=True):
+    tag: Literal["boolean"] = "boolean"
+    value: bool
+
+
+class Float(BaseModel, frozen=True):
+    tag: Literal["float"] = "float"
+    value: float
+
+
+class Tuple(BaseModel, frozen=True):
+    tag: Literal["tuple"] = "tuple"
+    elements: Sequence[Term]

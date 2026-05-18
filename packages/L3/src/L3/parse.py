@@ -9,7 +9,9 @@ from .syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
     Identifier,
     Immediate,
     Let,
@@ -20,6 +22,7 @@ from .syntax import (
     Reference,
     Store,
     Term,
+    Tuple,
 )
 
 
@@ -213,6 +216,27 @@ class AstTransformer(Transformer[Token, Program | Term]):
             effects=list(terms[:-1]),
             value=terms[-1],
         )
+
+    @v_args(inline=True)
+    def float(
+        self,
+        value: float,
+    ) -> Term:
+        return Float(value=value)
+
+    @v_args(inline=True)
+    def boolean(
+        self,
+        value: bool,
+    ) -> Term:
+        return Boolean(value=value)
+
+    @v_args(inline=True)
+    def tuple(
+        self,
+        *elements: Term,
+    ) -> Term:
+        return Tuple(elements=list(elements))
 
 
 def parse_term(source: str) -> Term:

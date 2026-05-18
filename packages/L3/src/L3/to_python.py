@@ -8,7 +8,9 @@ from .syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
     Immediate,
     Let,
     LetRec,
@@ -18,6 +20,7 @@ from .syntax import (
     Reference,
     Store,
     Term,
+    Tuple,
 )
 
 
@@ -154,6 +157,18 @@ def to_ast_term(
                     ctx=ast.Load(),
                 ),
                 slice=ast.Constant(-1),
+                ctx=ast.Load(),
+            )
+
+        case Float(value=value):
+            return ast.Constant(value=value)
+
+        case Boolean(value=value):
+            return ast.Constant(value=value)
+
+        case Tuple(elements=elements):
+            return ast.Tuple(
+                elts=[_term(element) for element in elements],
                 ctx=ast.Load(),
             )
 
