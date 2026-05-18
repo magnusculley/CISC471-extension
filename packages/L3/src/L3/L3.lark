@@ -27,7 +27,7 @@ reference   : IDENTIFIER
 abstract    : LAMBDA "(" parameters ")" "{" term "}"
 apply       : term "(" term* ")"
 immediate   : INTEGER
-primitive   : OPERATOR term term
+primitive   : OPERATOR NUMBER NUMBER
 branch      : IF "(" EVALUATE ")" "{" term "}" "else" "{" term "}"
 allocate    : ALLOCATE "(" immediate ")"
 load        : LOAD "(" term "[" immediate "]" ")"
@@ -37,6 +37,7 @@ begin       : BEGIN "{" term+ "}"
 
 float       : FLOAT 
 boolean     : BOOLEAN
+tuple       : "[" term* "]"
 
 PROGRAM.2   : "l3"
 LET.2       : "let"

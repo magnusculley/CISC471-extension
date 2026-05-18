@@ -12,6 +12,9 @@ from L3.syntax import (
     Program,
     Reference,
     Store,
+    Float,
+    Boolean,
+    Tuple
 )
 from L3.uniqify import Context, uniqify_program, uniqify_term
 from util.sequential_name_generator import SequentialNameGenerator
@@ -217,6 +220,41 @@ def test_uniqify_term_branch_load_store_begin():
     )
 
     assert actual == expected
+
+    def test_uniqify_term_float():
+    term = Float(value=3.14)
+
+    context: Context = dict[str, str]()
+    fresh = SequentialNameGenerator()
+    actual = uniqify_term(term, context, fresh)
+
+    expected = Float(value=3.14)
+
+    assert actual == expected
+
+
+def test_uniqify_term_boolean():
+    term = Boolean(value=True)
+
+    context: Context = dict[str, str]()
+    fresh = SequentialNameGenerator()
+    actual = uniqify_term(term, context, fresh)
+
+    expected = Boolean(value=True)
+
+    assert actual == expected
+
+def test_uniqify_term_tuple():
+    term = Tuple(elements=[Immediate(value=1), Immediate(value=2), Immediate(value=3)])
+
+    context: Context = dict[str, str]()
+    fresh = SequentialNameGenerator()
+    actual = uniqify_term(term, context, fresh)
+
+    expected = Tuple(elements=[Immediate(value=1), Immediate(value=2), Immediate(value=3)])
+
+    assert actual == expected
+
 
 
 def test_uniqify_program_parameters_and_body():

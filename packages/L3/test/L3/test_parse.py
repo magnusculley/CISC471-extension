@@ -4,7 +4,9 @@ from L3.syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
     Immediate,
     Let,
     LetRec,
@@ -13,6 +15,7 @@ from L3.syntax import (
     Program,
     Reference,
     Store,
+    Tuple,
 )
 
 # The starter tests for parser already covered 100% branch coverage,
@@ -319,5 +322,35 @@ def test_parse_program_identity():
     )
 
     actual = parse_program(source)
+
+    assert actual == expected
+
+
+def test_parse_float():
+    source = "(float 3.14)"
+
+    expected = Float(value=3.14)
+
+    actual = parse_term(source)
+
+    assert actual == expected
+
+
+def test_parse_boolean():
+    source = "(boolean true)"
+
+    expected = Boolean(value=True)
+
+    actual = parse_term(source)
+
+    assert actual == expected
+
+
+def test_parse_tuple():
+    source = "[1 2 3]"
+
+    expected = Tuple(elements=[Immediate(value=1), Immediate(value=2), Immediate(value=3)])
+
+    actual = parse_term(source)
 
     assert actual == expected
