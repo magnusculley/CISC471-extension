@@ -1,7 +1,10 @@
 program     : PROGRAM "(" parameters ")" "{" term "}"
 parameters  : IDENTIFIER*
 
-term        : let
+?term       : atom
+            | term OPERATOR term -> primitive
+
+?atom       : let
             | letrec
             | reference
             | abstract
@@ -11,7 +14,6 @@ term        : let
             | boolean
             | tuple
             | index
-            | primitive
             | branch
             | allocate
             | load
@@ -29,17 +31,15 @@ binding     : "(" IDENTIFIER term ")"
 reference   : IDENTIFIER
 
 abstract    : LAMBDA "(" parameters ")" "{" term "}"
-apply       : term "(" term* ")"
+apply       : atom "(" term* ")"
 immediate   : INTEGER
-primitive   : OPERATOR term term
-branch      : IF "(" COMPARATOR term term ")" "{" term "}" "else" "{" term "}"
+branch      : IF "(" term COMPARATOR term ")" "{" term "}" "else" "{" term "}"
 allocate    : ALLOCATE "(" immediate ")"
 load        : LOAD "(" term "[" immediate "]" ")"
 store       : STORE "(" term "[" immediate "]" ")" "{" term "}"
 begin       : BEGIN "{" term+ "}"
 
-
-float       : FLOAT 
+float       : FLOAT
 boolean     : BOOLEAN
 tuple       : "(" term* ")"
 index       : tuple "[" INTEGER "]"
@@ -55,7 +55,7 @@ STORE.2     : "store"
 BEGIN.2     : "begin"
 
 //doesn't really need to be token because it's only used in one place, but it makes the grammar more readable, and potentially could be used in more places in the future, so I think it's worth it
-OPERATOR : "+" | "-" | "*" 
+OPERATOR : "+" | "-" | "*" | "/" | "%" 
 COMPARATOR : "<" | "=="
 
 IDENTIFIER  : /[a-zA-Z_][a-zA-Z0-9_]*/

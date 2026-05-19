@@ -146,8 +146,8 @@ class AstTransformer(Transformer[Token, Program | Term]):
     @v_args(inline=True)
     def primitive(
         self,
-        operator: Token,
         left: Term,
+        operator: Token,
         right: Term,
     ) -> Term:
         return Primitive(
@@ -165,8 +165,8 @@ class AstTransformer(Transformer[Token, Program | Term]):
     def branch(
         self,
         _if: Token,
-        operator: Token,
         left: Term,
+        operator: Token,
         right: Term,
         consequent: Term,
         otherwise: Term,
@@ -273,3 +273,4 @@ def parse_program(source: str) -> Program:
     parser = Lark(grammar, start="program")
     tree = parser.parse(source)  # pyright: ignore[reportUnknownMemberType]
     return AstTransformer().transform(tree)  # pyright: ignore[reportReturnType]
+
