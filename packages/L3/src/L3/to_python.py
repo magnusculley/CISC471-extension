@@ -173,7 +173,7 @@ def to_ast_term(
                 ctx=ast.Load(),
             )
 
-        case Index(tuple=tuple):
+        case Index(tuple=tuple, index=index):
             return ast.Subscript(
                 value=_term(tuple),
                 slice=ast.Constant(value=index),

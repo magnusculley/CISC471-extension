@@ -80,24 +80,24 @@ def free_identifiers(statement: L1.Statement, bound: set[L1.Identifier]) -> list
         case L1.Halt(value=value):
             return [] if value in bound else [value]
 
-        case L1.Float(value=value, then=then):
+        case L1.Float(destination=destination, value=value, then=then):
             return recur(then, {destination, *bound})
 
-        case L1.Boolean(value=value, then=then):
+        case L1.Boolean(destination=destination, value=value, then=then):
             return recur(then, {destination, *bound})
 
-        case L1.Tuple(elements=elements, then=then):
+        case L1.Tuple(destination=destination, elements=elements, then=then):
             used: list[L1.Identifier] = []
             for element in elements:
                 if element not in bound and element not in used:
                     used.append(element)
-            return _merge_ordered(used, recur(then, set(bound)))
+            return _merge_ordered(used, recur(then, {destination, *bound}))
 
-        case L1.Index(tuple=tuple, index=index, then=then):
+        case L1.Index(destination=destination, tuple=tuple, index=index, then=then):
             used: list[L1.Identifier] = []
             if tuple not in bound:
                 used.append(tuple)
-            return _merge_ordered(used, recur(then, set(bound)))
+            return _merge_ordered(used, recur(then, {destination, *bound}))
 
         case _:  # pragma: no cover
             raise ValueError(statement)
@@ -225,34 +225,38 @@ def close_statement(
         case L1.Halt(value=value):
             return L0.Halt(value=value)
 
-        case L1.Float(value=value, then=then):
+        case L1.Float(destination=destination, value=value, then=then):
             next_context = dict(context)
             next_context.pop(destination, None)
             return L0.Float(
+                destination=destination,
                 value=value,
                 then=recur(then, next_context, procedures),
             )
 
-        case L1.Boolean(value=value, then=then):
+        case L1.Boolean(destination=destination, value=value, then=then):
             next_context = dict(context)
             next_context.pop(destination, None)
             return L0.Boolean(
+                destination=destination,
                 value=value,
                 then=recur(then, next_context, procedures),
             )
 
-        case L1.Tuple(elements=elements, then=then):
+        case L1.Tuple(destination=destination, elements=elements, then=then):
             next_context = dict(context)
             next_context.pop(destination, None)
             return L0.Tuple(
+                destination=destination,
                 elements=elements,
                 then=recur(then, next_context, procedures),
             )
 
-        case L1.Index(tuple=tuple, index=index, then=then):
+        case L1.Index(destination=destination, tuple=tuple, index=index, then=then):
             next_context = dict(context)
             next_context.pop(destination, None)
             return L0.Index(
+                destination=destination,
                 tuple=tuple,
                 index=index,
                 then=recur(then, next_context, procedures),

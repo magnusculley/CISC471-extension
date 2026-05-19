@@ -177,7 +177,7 @@ def to_ast_statement(
                 *_statement(then),
             ]
 
-        case Index(tuple=tuple, index=index, then=then):
+        case Index(destination=destination, tuple=tuple, index=index, then=then):
             return [
                 ast.Assign(
                     targets=[store(destination)],
