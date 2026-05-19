@@ -199,3 +199,25 @@ def test_eliminate_letrec_store():
     actual = eliminate_letrec_term(term, context={})
 
     assert actual == expected
+
+
+def test_eliminate_letrec_float_boolean_tuple_index():
+    float_term = L3.Float(value=3.14)
+    boolean_term = L3.Boolean(value=False)
+    tuple_term = L3.Tuple(elements=[L3.Reference(name="x"), L3.Immediate(value=1)])
+    index_term = L3.Index(tuple=tuple_term, index=1)
+
+    assert eliminate_letrec_term(float_term, context={}) == L2.Float(value=3.14)
+    assert eliminate_letrec_term(boolean_term, context={}) == L2.Boolean(value=False)
+    assert eliminate_letrec_term(tuple_term, context={}) == L2.Tuple(
+        elements=[L2.Reference(name="x"), L2.Immediate(value=1)]
+    )
+    assert eliminate_letrec_term(index_term, context={}) == L2.Index(
+        tuple=L2.Tuple(elements=[L2.Reference(name="x"), L2.Immediate(value=1)]),
+        index=1,
+    )
+
+
+def test_eliminate_letrec_unknown_falls_through():
+    actual = eliminate_letrec_term(object(), context={})  # type: ignore[arg-type]
+    assert actual is None

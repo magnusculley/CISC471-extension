@@ -1,4 +1,4 @@
-from L3.parse import parse_program, parse_term
+from L3.parse import AstTransformer, parse_program, parse_term
 from L3.syntax import (
     Abstract,
     Allocate,
@@ -368,3 +368,13 @@ def test_parse_index():
     actual = parse_term(source)
 
     assert actual == expected
+
+
+def test_transformer_term_passthrough():
+    value = Immediate(value=7)
+    assert AstTransformer().term(value) == value
+
+
+def test_transformer_tuple_element_passthrough():
+    value = Reference(name="x")
+    assert AstTransformer().tuple_element(value) == value
