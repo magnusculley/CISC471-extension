@@ -1,4 +1,3 @@
-
 from collections.abc import Mapping
 from functools import partial
 
@@ -7,8 +6,12 @@ from .syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
+    Identifier,
     Immediate,
+    Index,
     Let,
     Load,
     Primitive,
@@ -16,7 +19,7 @@ from .syntax import (
     Reference,
     Store,
     Term,
-    Identifier,
+    Tuple,
 )
 
 type Context = Mapping[Identifier, None]
@@ -94,7 +97,7 @@ def constant_folding_term(term: Term, context: Context) -> Term:
                             return left
                         case left, right:  # pragma: no branch
                             return Primitive(operator="*", left=left, right=right)
-                        #Maybe there is an easier way to do this that covers everything
+                        # Maybe there is an easier way to do this that covers everything
 
         case Branch(operator=operator, left=left, right=right, consequent=consequent, otherwise=otherwise):
             folded_left = recur(left)
@@ -132,6 +135,18 @@ def constant_folding_term(term: Term, context: Context) -> Term:
                 effects=[recur(effect) for effect in effects],
                 value=recur(value),
             )
+
+        case Float(value=value):
+            return term
+
+        case Boolean(value=value):
+            return term
+
+        case Tuple(elements=elements):
+            return Tuple(elements=[recur(element) for element in elements])
+
+        case Index(tuple=tuple, index=index):
+            return Index(tuple=recur(tuple), index=index)
 
 
 def constant_folding_program(program: Program) -> Program:

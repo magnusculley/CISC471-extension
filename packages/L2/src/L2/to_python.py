@@ -8,8 +8,11 @@ from .syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
     Immediate,
+    Index,
     Let,
     Load,
     Primitive,
@@ -17,6 +20,7 @@ from .syntax import (
     Reference,
     Store,
     Term,
+    Tuple,
 )
 
 
@@ -132,6 +136,22 @@ def to_ast_term(
                     ctx=ast.Load(),
                 ),
                 slice=ast.Constant(-1),
+                ctx=ast.Load(),
+            )
+
+        case Float(value=value):
+            return ast.Constant(value=value)
+        case Boolean(value=value):
+            return ast.Constant(value=value)
+        case Tuple(elements=elements):
+            return ast.Tuple(
+                elts=[_term(element) for element in elements],
+                ctx=ast.Load(),
+            )
+        case Index(tuple=tuple, index=index):
+            return ast.Subscript(
+                value=_term(tuple),
+                slice=ast.Constant(value=index),
                 ctx=ast.Load(),
             )
 

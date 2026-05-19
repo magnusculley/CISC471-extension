@@ -260,3 +260,48 @@ def test_cps_convert_program():
     )
 
     assert actual == expected
+
+
+def test_cps_convert_float():
+    term = L2.Float(value=3.14)
+
+    fresh = SequentialNameGenerator()
+    actual = cps_convert_term(term, k, fresh)
+
+    expected = L1.Float(
+        destination="t0",
+        value=3.14,
+        then=L1.Halt(value="t0"),
+    )
+
+    assert actual == expected
+
+
+def test_cps_convert_boolean():
+    term = L2.Boolean(value=True)
+
+    fresh = SequentialNameGenerator()
+    actual = cps_convert_term(term, k, fresh)
+
+    expected = L1.Boolean(
+        destination="t0",
+        value=True,
+        then=L1.Halt(value="t0"),
+    )
+
+    assert actual == expected
+
+
+def test_cps_convert_tuple():
+    term = L2.Tuple(elements=[L2.Reference(name="x"), L2.Reference(name="y")])
+
+    fresh = SequentialNameGenerator()
+    actual = cps_convert_term(term, k, fresh)
+
+    expected = L1.Tuple(
+        destination="t0",
+        elements=["x", "y"],
+        then=L1.Halt(value="t0"),
+    )
+
+    assert actual == expected

@@ -5,7 +5,9 @@ from L3.syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
     Immediate,
     Let,
     LetRec,
@@ -14,6 +16,7 @@ from L3.syntax import (
     Program,
     Reference,
     Store,
+    Tuple,
 )
 
 
@@ -152,6 +155,18 @@ def test_apply_success():
 
 def test_immediate_trivial():
     check_term(Immediate(value=123), {})
+
+
+def test_float_trivial():
+    check_term(Float(value=3.14), {})
+
+
+def test_boolean_trivial():
+    check_term(Boolean(value=True), {})
+
+
+def test_tuple_trivial():
+    check_term(Tuple(elements=[Immediate(value=1), Immediate(value=2)]), {})
 
 
 def test_primitive_unbound():
