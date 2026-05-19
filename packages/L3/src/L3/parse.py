@@ -14,6 +14,7 @@ from .syntax import (
     Float,
     Identifier,
     Immediate,
+    Index,
     Let,
     LetRec,
     Load,
@@ -23,7 +24,6 @@ from .syntax import (
     Store,
     Term,
     Tuple,
-    Index,
 )
 
 
