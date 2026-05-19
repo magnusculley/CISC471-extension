@@ -1,24 +1,28 @@
-from L2.constant_folding import constant_folding_program
-from L2.constant_propagation import constant_propagation_program
-from L2.dead_code_elimination import dead_code_elimination_program, is_pure, is_referenced
+from L2.constant_folding import constant_folding_program, constant_folding_term
+from L2.constant_propagation import constant_propagation_program, constant_propagation_term
+from L2.dead_code_elimination import dead_code_elimination_program, dead_code_elimination_term, is_pure, is_referenced
 from L2.optimize import optimize_program
 from L2.syntax import (
     Abstract,
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
     Immediate,
+    Index,
     Let,
     Load,
     Primitive,
     Program,
     Reference,
     Store,
+    Tuple,
 )
 
-
 # Propagation
+
 
 def test_constant_propagation_immediate_and_reference_and_scope():
     program = Program(
@@ -194,7 +198,56 @@ def test_constant_propagation_begin_with_no_effects():
     assert actual == expected
 
 
+def test_constant_propagation_float_boolean_tuple_index_paths():
+    program = Program(
+        parameters=[],
+        body=Let(
+            bindings=[
+                ("x", Immediate(value=7)),
+                ("y", Reference(name="x")),
+            ],
+            body=Begin(
+                effects=[
+                    Float(value=2.5),
+                    Boolean(value=False),
+                    Tuple(elements=[Reference(name="x"), Reference(name="y")]),
+                ],
+                value=Index(
+                    tuple=Tuple(elements=[Reference(name="x"), Reference(name="y")]),
+                    index=1,
+                ),
+            ),
+        ),
+    )
+
+    actual = constant_propagation_program(program)
+
+    expected = Program(
+        parameters=[],
+        body=Let(
+            bindings=[
+                ("x", Immediate(value=7)),
+                ("y", Immediate(value=7)),
+            ],
+            body=Begin(
+                effects=[
+                    Float(value=2.5),
+                    Boolean(value=False),
+                    Tuple(elements=[Immediate(value=7), Immediate(value=7)]),
+                ],
+                value=Index(
+                    tuple=Tuple(elements=[Immediate(value=7), Immediate(value=7)]),
+                    index=1,
+                ),
+            ),
+        ),
+    )
+
+    assert actual == expected
+
+
 # Folding
+
 
 def test_constant_folding_primitives_and_branches():
     program = Program(
@@ -488,7 +541,54 @@ def test_constant_folding_specific_primitive_branches():
     assert actual == expected
 
 
+def test_constant_folding_float_boolean_tuple_index_paths():
+    program = Program(
+        parameters=[],
+        body=Begin(
+            effects=[
+                Float(value=1.25),
+                Boolean(value=True),
+                Tuple(
+                    elements=[
+                        Primitive(operator="*", left=Immediate(value=2), right=Immediate(value=3)),
+                        Reference(name="x"),
+                    ]
+                ),
+            ],
+            value=Index(
+                tuple=Tuple(
+                    elements=[
+                        Primitive(operator="+", left=Immediate(value=0), right=Reference(name="y")),
+                        Immediate(value=1),
+                    ]
+                ),
+                index=0,
+            ),
+        ),
+    )
+
+    actual = constant_folding_program(program)
+
+    expected = Program(
+        parameters=[],
+        body=Begin(
+            effects=[
+                Float(value=1.25),
+                Boolean(value=True),
+                Tuple(elements=[Immediate(value=6), Reference(name="x")]),
+            ],
+            value=Index(
+                tuple=Tuple(elements=[Reference(name="y"), Immediate(value=1)]),
+                index=0,
+            ),
+        ),
+    )
+
+    assert actual == expected
+
+
 # DCE
+
 
 def test_dead_code_elimination_removes_unused_pure_initializers_only():
     program = Program(
@@ -736,6 +836,15 @@ def test_is_pure_let_and_begin_cases():
     assert not is_pure(impure_begin)
 
 
+def test_is_pure_float_boolean_tuple_index_cases():
+    assert is_pure(Float(value=1.5))
+    assert is_pure(Boolean(value=True))
+    assert is_pure(Tuple(elements=[Immediate(value=1), Reference(name="x")]))
+    assert not is_pure(Tuple(elements=[Apply(target=Reference(name="f"), arguments=[])]))
+    assert is_pure(Index(tuple=Tuple(elements=[Immediate(value=1)]), index=0))
+    assert not is_pure(Index(tuple=Tuple(elements=[Apply(target=Reference(name="f"), arguments=[])]), index=0))
+
+
 def test_is_referenced_direct_cases():
     assert is_referenced(Reference(name="x"), "x", set())
     assert not is_referenced(Reference(name="x"), "x", {"x"})
@@ -780,6 +889,15 @@ def test_is_referenced_early_true_and_branch_and_begin_value_true_paths():
     assert is_referenced(begin_term, "x", set())
 
 
+def test_is_referenced_float_boolean_tuple_index_cases():
+    assert not is_referenced(Float(value=1.5), "x", set())
+    assert not is_referenced(Boolean(value=False), "x", set())
+    assert is_referenced(Tuple(elements=[Immediate(value=0), Reference(name="x")]), "x", set())
+    assert not is_referenced(Tuple(elements=[Immediate(value=0), Immediate(value=1)]), "x", set())
+    assert is_referenced(Index(tuple=Tuple(elements=[Reference(name="x")]), index=0), "x", set())
+    assert not is_referenced(Index(tuple=Tuple(elements=[Immediate(value=1)]), index=0), "x", set())
+
+
 def test_dead_code_elimination_begin_with_only_pure_effects_returns_value():
     program = Program(
         parameters=[],
@@ -799,7 +917,51 @@ def test_dead_code_elimination_begin_with_only_pure_effects_returns_value():
     assert actual == expected
 
 
+def test_dead_code_elimination_float_boolean_tuple_index_cases():
+    program = Program(
+        parameters=[],
+        body=Begin(
+            effects=[
+                Float(value=2.5),
+                Boolean(value=True),
+                Tuple(elements=[Immediate(value=1), Apply(target=Reference(name="f"), arguments=[])]),
+            ],
+            value=Index(
+                tuple=Tuple(elements=[Reference(name="x"), Apply(target=Reference(name="g"), arguments=[])]),
+                index=1,
+            ),
+        ),
+    )
+
+    actual = dead_code_elimination_program(program)
+
+    expected = Program(
+        parameters=[],
+        body=Begin(
+            effects=[Tuple(elements=[Immediate(value=1), Apply(target=Reference(name="f"), arguments=[])])],
+            value=Index(
+                tuple=Tuple(elements=[Reference(name="x"), Apply(target=Reference(name="g"), arguments=[])]),
+                index=1,
+            ),
+        ),
+    )
+
+    assert actual == expected
+
+
+def test_dead_code_elimination_match_fallthrough_paths():
+    assert is_pure(object()) is None  # type: ignore[arg-type]
+    assert is_referenced(object(), "x", set()) is None  # type: ignore[arg-type]
+    assert dead_code_elimination_term(object()) is None  # type: ignore[arg-type]
+
+
+def test_constant_folding_and_propagation_match_fallthrough_paths():
+    assert constant_folding_term(object(), context={}) is None  # type: ignore[arg-type]
+    assert constant_propagation_term(object(), context={}) is None  # type: ignore[arg-type]
+
+
 # Optimize
+
 
 def test_optimize_program_runs_to_fixed_point_with_reference_constants():
     program = Program(
