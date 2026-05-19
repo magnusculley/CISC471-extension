@@ -246,6 +246,7 @@ def test_cps_convert_program():
 
     assert actual == expected
 
+
 def test_cps_convert_float():
     term = L2.Float(value=3.14)
 
@@ -260,7 +261,8 @@ def test_cps_convert_float():
 
     assert actual == expected
 
- def test_cps_convert_boolean():
+
+def test_cps_convert_boolean():
     term = L2.Boolean(value=True)
 
     fresh = SequentialNameGenerator()
@@ -273,6 +275,7 @@ def test_cps_convert_float():
     )
 
     assert actual == expected
+
 
 def test_cps_convert_tuple():
     term = L2.Tuple(elements=[L2.Reference(name="x"), L2.Reference(name="y")])
