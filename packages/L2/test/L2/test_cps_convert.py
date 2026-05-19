@@ -305,3 +305,21 @@ def test_cps_convert_tuple():
     )
 
     assert actual == expected
+
+
+def test_cps_convert_index():
+    term = L2.Index(
+        tuple=L2.Reference(name="x"),
+        index=1,
+    )
+
+    fresh = SequentialNameGenerator()
+    actual = cps_convert_term(term, k, fresh)
+    expected = L1.Index(
+        destination="t0",
+        tuple="x",
+        index=1,
+        then=L1.Halt(value="t0"),
+    )
+
+    assert actual == expected

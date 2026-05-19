@@ -248,3 +248,88 @@ def test_free_identifiers_skips_bound_names_in_all_conditional_paths():
     actual = free_identifiers(statement, {"l", "b", "s"})
 
     assert actual == []
+
+
+def test_free_identifiers_float_boolean_tuple_index_paths():
+    statement = L1.Float(
+        destination="f",
+        value=1.5,
+        then=L1.Boolean(
+            destination="b",
+            value=True,
+            then=L1.Tuple(
+                destination="t",
+                elements=["x", "x", "y"],
+                then=L1.Index(
+                    destination="i",
+                    tuple="tup",
+                    index=0,
+                    then=L1.Halt(value="h"),
+                ),
+            ),
+        ),
+    )
+
+    actual = free_identifiers(statement, {"h", "y"})
+
+    assert actual == ["x", "tup"]
+
+
+def test_close_statement_float_boolean_tuple_index_paths():
+    procedures: list[L0.Procedure] = []
+
+    statement = L1.Float(
+        destination="f",
+        value=3.25,
+        then=L1.Boolean(
+            destination="b",
+            value=False,
+            then=L1.Tuple(
+                destination="t",
+                elements=["a", "b"],
+                then=L1.Index(
+                    destination="i",
+                    tuple="t",
+                    index=1,
+                    then=L1.Apply(target="f", arguments=["i"]),
+                ),
+            ),
+        ),
+    )
+
+    actual = close_statement(statement, context={"f": ("f", ["x"])}, procedures=procedures)
+
+    expected = L0.Float(
+        destination="f",
+        value=3.25,
+        then=L0.Boolean(
+            destination="b",
+            value=False,
+            then=L0.Tuple(
+                destination="t",
+                elements=["a", "b"],
+                then=L0.Index(
+                    destination="i",
+                    tuple="t",
+                    index=1,
+                    then=L0.Call(target="f", arguments=["i"]),
+                ),
+            ),
+        ),
+    )
+
+    assert actual == expected
+    assert procedures == []
+
+
+def test_free_identifiers_index_base_already_bound():
+    statement = L1.Index(
+        destination="out",
+        tuple="tup",
+        index=0,
+        then=L1.Halt(value="done"),
+    )
+
+    actual = free_identifiers(statement, {"tup", "done"})
+
+    assert actual == []

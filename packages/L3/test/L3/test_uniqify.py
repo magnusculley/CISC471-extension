@@ -7,6 +7,7 @@ from L3.syntax import (
     Branch,
     Float,
     Immediate,
+    Index,
     Let,
     LetRec,
     Load,
@@ -221,16 +222,17 @@ def test_uniqify_term_branch_load_store_begin():
 
     assert actual == expected
 
-    def test_uniqify_term_float():
-        term = Float(value=3.14)
 
-        context: Context = dict[str, str]()
-        fresh = SequentialNameGenerator()
-        actual = uniqify_term(term, context, fresh)
+def test_uniqify_term_float():
+    term = Float(value=3.14)
 
-        expected = Float(value=3.14)
+    context: Context = dict[str, str]()
+    fresh = SequentialNameGenerator()
+    actual = uniqify_term(term, context, fresh)
 
-        assert actual == expected
+    expected = Float(value=3.14)
+
+    assert actual == expected
 
 
 def test_uniqify_term_boolean():
@@ -257,6 +259,18 @@ def test_uniqify_term_tuple():
     assert actual == expected
 
 
+def test_uniqify_term_index():
+    term = Index(tuple=Tuple(elements=[Reference(name="x"), Immediate(value=2)]), index=0)
+
+    context: Context = {"x": "x0"}
+    fresh = SequentialNameGenerator()
+    actual = uniqify_term(term, context, fresh)
+
+    expected = Index(tuple=Tuple(elements=[Reference(name="x0"), Immediate(value=2)]), index=0)
+
+    assert actual == expected
+
+
 def test_uniqify_program_parameters_and_body():
     program = Program(
         parameters=["x", "y"],
@@ -277,3 +291,11 @@ def test_uniqify_program_parameters_and_body():
     )
 
     assert actual == expected
+
+
+def test_uniqify_term_unknown_falls_through():
+    context: Context = {}
+    fresh = SequentialNameGenerator()
+    actual = uniqify_term(object(), context, fresh)  # type: ignore[arg-type]
+
+    assert actual is None
