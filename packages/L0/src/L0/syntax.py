@@ -61,7 +61,7 @@ class Branch(BaseModel, frozen=True):
 class Allocate(BaseModel, frozen=True):
     tag: Literal["allocate"] = "allocate"
     destination: Identifier
-    count: Nat
+    count: Nat | Identifier
     then: Statement
 
 

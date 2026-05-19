@@ -172,6 +172,21 @@ def test_cps_convert_term_allocate():
     assert actual == expected
 
 
+def test_cps_convert_term_allocate_with_count_expression():
+    term = L2.Allocate(count=L2.Reference(name="n"))
+
+    fresh = SequentialNameGenerator()
+    actual = cps_convert_term(term, k, fresh)
+
+    expected = L1.Allocate(
+        destination="t0",
+        count="n",
+        then=L1.Halt(value="t0"),
+    )
+
+    assert actual == expected
+
+
 def test_cps_convert_term_load():
     term_load = L2.Load(
         base=L2.Reference(name="x"),

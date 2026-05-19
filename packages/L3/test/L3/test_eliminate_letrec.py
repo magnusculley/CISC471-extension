@@ -36,12 +36,26 @@ def test_eliminate_letrec_program():
 
 def test_eliminate_letrec_reference():
     term = L3.LetRec(
-        bindings=[("x", L3.Immediate(value=0))],
+        bindings=[("x", L3.Abstract(parameters=["n"], body=L3.Reference(name="n")))],
         body=L3.Reference(name="x"),
     )
     expected = L2.Let(
-        bindings=[("x", L2.Immediate(value=0))],
-        body=L2.Load(base=L2.Reference(name="x"), index=0),
+        bindings=[("x", L2.Allocate(count=2))],
+        body=L2.Begin(
+            effects=[
+                L2.Store(
+                    base=L2.Reference(name="x"),
+                    index=0,
+                    value=L2.Abstract(parameters=["n"], body=L2.Reference(name="n")),
+                ),
+                L2.Store(
+                    base=L2.Reference(name="x"),
+                    index=1,
+                    value=L2.Reference(name="x"),
+                ),
+            ],
+            value=L2.Reference(name="x"),
+        ),
     )
     actual = eliminate_letrec_term(term, context={})
     assert actual == expected
@@ -49,13 +63,27 @@ def test_eliminate_letrec_reference():
 
 def test_eliminate_letrec_body():
     term = L3.LetRec(
-        bindings=[("x", L3.Immediate(value=1))],
+        bindings=[("x", L3.Abstract(parameters=["n"], body=L3.Reference(name="x")))],
         body=L3.Reference(name="x"),
     )
 
     expected = L2.Let(
-        bindings=[("x", L2.Immediate(value=1))],
-        body=L2.Load(base=L2.Reference(name="x"), index=0),
+        bindings=[("x", L2.Allocate(count=2))],
+        body=L2.Begin(
+            effects=[
+                L2.Store(
+                    base=L2.Reference(name="x"),
+                    index=0,
+                    value=L2.Abstract(parameters=["n"], body=L2.Reference(name="x")),
+                ),
+                L2.Store(
+                    base=L2.Reference(name="x"),
+                    index=1,
+                    value=L2.Reference(name="x"),
+                ),
+            ],
+            value=L2.Reference(name="x"),
+        ),
     )
 
     actual = eliminate_letrec_term(term, context={})
@@ -65,16 +93,19 @@ def test_eliminate_letrec_body():
 
 def test_eliminate_letrec_apply_abstract():
     term = L3.Apply(
-        target=L3.Abstract(parameters=["x"], body=L3.Reference(name="x")),
+        target=L3.Reference(name="f"),
         arguments=[L3.Immediate(value=1)],
     )
 
     expected = L2.Apply(
-        target=L2.Abstract(parameters=["x"], body=L2.Reference(name="x")),
-        arguments=[L2.Immediate(value=1)],
+        target=L2.Load(base=L2.Reference(name="f"), index=0),
+        arguments=[
+            L2.Load(base=L2.Reference(name="f"), index=1),
+            L2.Immediate(value=1),
+        ],
     )
 
-    actual = eliminate_letrec_term(term, context={})
+    actual = eliminate_letrec_term(term, context={"f": True})
 
     assert actual == expected
 

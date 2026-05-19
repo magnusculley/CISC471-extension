@@ -6,7 +6,7 @@ from L2 import syntax as L2
 
 from . import syntax as L3
 
-type Context = Mapping[L3.Identifier, None]
+type Context = Mapping[L3.Identifier, bool]
 
 
 def eliminate_letrec_term(
@@ -17,22 +17,44 @@ def eliminate_letrec_term(
 
     match term:
         case L3.Let(bindings=bindings, body=body):
+            local = {name: (isinstance(value, L3.Reference) and bool(context.get(value.name, False))) for name, value in bindings}
             return L2.Let(
                 bindings=[(name, recur(value)) for name, value in bindings],
-                body=recur(body),
+                body=recur(body, context={**context, **local}),
             )
 
         case L3.LetRec(bindings=bindings, body=body):
+            local = dict.fromkeys([name for name, _ in bindings], True)
             return L2.Let(
-                bindings=[(name, recur(value)) for name, value in bindings],
-                body=recur(body, context={**context, **dict.fromkeys([name for name, _ in bindings])}),
+                bindings=[
+                    (name, L2.Allocate(count=2))
+                    for name, _ in bindings
+                ],
+                body=L2.Begin(
+                    effects=[
+                        *[
+                            L2.Store(
+                                base=L2.Reference(name=name),
+                                index=0,
+                                value=recur(value, context={**context, **local}),
+                            )
+                            for name, value in bindings
+                        ],
+                        *[
+                            L2.Store(
+                                base=L2.Reference(name=name),
+                                index=1,
+                                value=L2.Reference(name=name),
+                            )
+                            for name, _ in bindings
+                        ],
+                    ],
+                    value=recur(body, context={**context, **local}),
+                ),
             )
 
         case L3.Reference(name=name):
-            if name in context:
-                return L2.Load(base=L2.Reference(name=name), index=0)
-            else:
-                return L2.Reference(name=name)
+            return L2.Reference(name=name)
 
         case L3.Abstract(parameters=parameters, body=body):
             return L2.Abstract(
@@ -40,11 +62,18 @@ def eliminate_letrec_term(
                 body=recur(body),
             )
 
-        case L3.Apply(target=target, arguments=arguments):
+        case L3.Apply(target=L3.Reference(name=name), arguments=arguments) if context.get(name, False):
+            closure = L2.Reference(name=name)
             return L2.Apply(
-                target=recur(target),
-                arguments=[recur(argument) for argument in arguments],
+                target=L2.Load(base=closure, index=0),
+                arguments=[
+                    L2.Load(base=closure, index=1),
+                    *[recur(argument) for argument in arguments],
+                ],
             )
+
+        case L3.Apply(target=target, arguments=arguments):
+            return L2.Apply(target=recur(target), arguments=[recur(argument) for argument in arguments])
 
         case L3.Immediate(value=value):
             return L2.Immediate(value=value)

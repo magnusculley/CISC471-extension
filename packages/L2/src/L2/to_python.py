@@ -88,9 +88,16 @@ def to_ast_term(
             )
 
         case Allocate(count=count):
-            return ast.List(
-                elts=[ast.Constant(None) for _ in range(count)],
-                ctx=ast.Load(),
+            count_ast: ast.expr
+            if isinstance(count, int):
+                count_ast = ast.Constant(count)
+            else:
+                count_ast = _term(count)
+
+            return ast.BinOp(
+                left=ast.List(elts=[ast.Constant(None)], ctx=ast.Load()),
+                op=ast.Mult(),
+                right=count_ast,
             )
 
         case Load(base=base, index=index):

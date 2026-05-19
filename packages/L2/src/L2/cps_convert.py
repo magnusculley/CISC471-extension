@@ -133,10 +133,20 @@ def cps_convert_term(
 
         case L2.Allocate(count=count):
             destination = fresh("t")
-            return L1.Allocate(
-                destination=destination,
-                count=count,
-                then=k(destination),
+            if isinstance(count, int):
+                return L1.Allocate(
+                    destination=destination,
+                    count=count,
+                    then=k(destination),
+                )
+
+            return _term(
+                count,
+                lambda count_value: L1.Allocate(
+                    destination=destination,
+                    count=count_value,
+                    then=k(destination),
+                ),
             )
 
         case L2.Load(base=base, index=index):
