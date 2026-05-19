@@ -182,9 +182,6 @@ def cps_convert_term(
                 case _:  # pragma: no cover
                     raise ValueError(effects)
 
-        case _:  # pragma: no cover
-            raise ValueError(term)
-
         case L2.Float(value=value):
             destination = fresh("t")
             return L1.Float(
@@ -222,6 +219,9 @@ def cps_convert_term(
                     then=k(destination),
                 ),
             )
+
+        case _:  # pragma: no cover
+            raise ValueError(term)
 
 
 def cps_convert_terms(
