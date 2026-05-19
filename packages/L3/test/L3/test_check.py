@@ -312,3 +312,74 @@ def test_branch_tuple_equality_requires_same_length():
 def test_allocate_count_rejects_float():
     with pytest.raises(ValueError, match="Allocate count must be an integer"):
         check_term(Allocate(count=Float(value=1.5)), {})
+
+
+def test_primitive_success():
+    check_term(Primitive(operator="+", left=Immediate(value=1), right=Immediate(value=2)), {})
+
+
+def test_primitive_unknown_right_operand():
+    # _unify(TypeInt, TypeUnknown) hits the right=TypeUnknown branch in _unify
+    check_term(Primitive(operator="+", left=Immediate(value=1), right=Reference(name="x")), {"x": None})
+
+
+def test_primitive_mixed_numeric_types():
+    # _unify(TypeFloat, TypeInt) hits the float-promotion branch in _unify
+    check_term(Primitive(operator="+", left=Float(value=1.5), right=Immediate(value=1)), {})
+
+
+def test_allocate_with_unknown_count():
+    # _expect_integer with TypeUnknown hits the early return branch
+    check_term(Allocate(count=Reference(name="x")), {"x": None})
+
+
+def test_branch_tuple_equality_same_length():
+    # hits the tuple == loop body and return in _check_comparator
+    term = Branch(
+        operator="==",
+        left=Tuple(elements=[Immediate(value=1)]),
+        right=Tuple(elements=[Immediate(value=2)]),
+        consequent=Immediate(value=1),
+        otherwise=Immediate(value=0),
+    )
+    check_term(term, {})
+
+
+def test_load_from_memory():
+    # hits the TypeMemory path in Load (return base_type.element)
+    term = Let(
+        bindings=[("a", Allocate(count=1))],
+        body=Load(base=Reference(name="a"), index=0),
+    )
+    check_term(term, {})
+
+
+def test_load_non_memory_base_raises():
+    # hits the "Load base must be memory" raise
+    with pytest.raises(ValueError, match="Load base must be memory"):
+        check_term(Load(base=Immediate(value=1), index=0), {})
+
+
+def test_store_to_memory():
+    # hits the TypeMemory path in Store (_unify + return TYPE_INT)
+    term = Let(
+        bindings=[("a", Allocate(count=1))],
+        body=Store(base=Reference(name="a"), index=0, value=Immediate(value=42)),
+    )
+    check_term(term, {})
+
+
+def test_store_non_memory_base_raises():
+    # hits the "Store base must be memory" raise
+    with pytest.raises(ValueError, match="Store base must be memory"):
+        check_term(Store(base=Immediate(value=1), index=0, value=Immediate(value=0)), {})
+
+
+def test_index_unknown_tuple():
+    # hits the TypeUnknown branch in Index (return TYPE_UNKNOWN)
+    check_term(Index(tuple=Reference(name="x"), index=0), {"x": None})
+
+
+def test_index_in_bounds():
+    # hits the successful return path in Index
+    check_term(Index(tuple=Tuple(elements=[Immediate(value=1), Immediate(value=2)]), index=1), {})
