@@ -199,7 +199,6 @@ def cps_convert_term(
             )
 
         case L2.Tuple(elements=elements):
-            element_names = [fresh("t") for _ in elements]
             return _terms(
                 elements,
                 lambda element_values: L1.Tuple(

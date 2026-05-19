@@ -23,6 +23,7 @@ from .syntax import (
     Store,
     Term,
     Tuple,
+    Index,
 )
 
 
@@ -30,8 +31,14 @@ class AstTransformer(Transformer[Token, Program | Term]):
     def IDENTIFIER(self, token: Token) -> str:
         return str(token)
 
-    def NUMBER(self, token: Token) -> int:
+    def INTEGER(self, token: Token) -> int:
         return int(token)
+
+    def FLOAT(self, token: Token) -> float:
+        return float(token)
+
+    def BOOLEAN(self, token: Token) -> bool:
+        return str(token) == "true"
 
     # pre processing functions that convert the tokens into the appropriate types for the AST nodes
     # Lark calls these itself when walks through the tree and then I don't have to manually convert everything
@@ -232,6 +239,13 @@ class AstTransformer(Transformer[Token, Program | Term]):
         return Boolean(value=value)
 
     @v_args(inline=True)
+    def tuple_element(
+        self,
+        element: Term,
+    ) -> Term:
+        return element
+
+    @v_args(inline=True)
     def tuple(
         self,
         *elements: Term,
@@ -241,11 +255,10 @@ class AstTransformer(Transformer[Token, Program | Term]):
     @v_args(inline=True)
     def index(
         self,
-        _index: Token,
         tuple: Term,
         index: int,
     ) -> Term:
-        return Index(tuple=tuple)
+        return Index(tuple=tuple, index=index)
 
 
 def parse_term(source: str) -> Term:

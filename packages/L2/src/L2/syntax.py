@@ -28,7 +28,8 @@ type Term = Annotated[
     | Begin
     | Boolean
     | Float
-    | Tuple,
+    | Tuple
+    | Index,
     Field(discriminator="tag"),
 ]
 
@@ -121,4 +122,4 @@ class Tuple(BaseModel, frozen=True):
 class Index(BaseModel, frozen=True):
     tag: Literal["index"] = "index"
     tuple: Term
-    index: int
+    index: Nat

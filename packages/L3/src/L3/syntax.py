@@ -28,11 +28,9 @@ type Term = Annotated[
     | Begin
     | LetRec
     | Boolean
+    | Float
     | Tuple
-    | Float
-    | Boolean
-    | Float
-    | Tuple,
+    | Index,
     Field(discriminator="tag"),
 ]
 
@@ -131,4 +129,4 @@ class Float(BaseModel, frozen=True):
 class Index(BaseModel, frozen=True):
     tag: Literal["index"] = "index"
     tuple: Term
-    index: int
+    index: Nat

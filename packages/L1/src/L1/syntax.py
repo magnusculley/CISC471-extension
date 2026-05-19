@@ -14,7 +14,20 @@ class Program(BaseModel, frozen=True):
 
 
 type Statement = Annotated[
-    Copy | Abstract | Apply | Immediate | Primitive | Branch | Allocate | Load | Store | Halt | Boolean | Float | Tuple,
+    Copy
+    | Abstract
+    | Apply
+    | Immediate
+    | Primitive
+    | Branch
+    | Allocate
+    | Load
+    | Store
+    | Halt
+    | Boolean
+    | Float
+    | Tuple
+    | Index,
     Field(discriminator="tag"),
 ]
 
@@ -96,22 +109,6 @@ class Halt(BaseModel, frozen=True):
 # new types
 class Boolean(BaseModel, frozen=True):
     tag: Literal["boolean"] = "boolean"
-    value: bool
-
-
-class Float(BaseModel, frozen=True):
-    tag: Literal["float"] = "float"
-    value: float
-
-
-class Tuple(BaseModel, frozen=True):
-    tag: Literal["tuple"] = "tuple"
-    elements: Sequence[Term]
-
-
-# new types
-class Boolean(BaseModel, frozen=True):
-    tag: Literal["boolean"] = "boolean"
     destination: Identifier
     value: bool
     then: Statement
@@ -127,7 +124,7 @@ class Float(BaseModel, frozen=True):
 class Tuple(BaseModel, frozen=True):
     tag: Literal["tuple"] = "tuple"
     destination: Identifier
-    elements: Sequence[Term]
+    elements: Sequence[Identifier]
     then: Statement
 
 
@@ -136,5 +133,5 @@ class Index(BaseModel, frozen=True):
     tag: Literal["index"] = "index"
     destination: Identifier
     tuple: Identifier
-    index: int
+    index: Nat
     then: Statement

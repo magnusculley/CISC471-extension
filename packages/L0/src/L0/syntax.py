@@ -21,7 +21,20 @@ class Procedure(BaseModel, frozen=True):
 
 
 type Statement = Annotated[
-    Copy | Immediate | Primitive | Branch | Allocate | Load | Store | Address | Call | Halt | Boolean | Float | Tuple | Index,
+    Copy
+    | Immediate
+    | Primitive
+    | Branch
+    | Allocate
+    | Load
+    | Store
+    | Address
+    | Call
+    | Halt
+    | Boolean
+    | Float
+    | Tuple
+    | Index,
     Field(discriminator="tag"),
 ]
 

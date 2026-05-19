@@ -12,6 +12,7 @@ from .syntax import (
     Branch,
     Float,
     Immediate,
+    Index,
     Let,
     Load,
     Primitive,
