@@ -17,7 +17,10 @@ def eliminate_letrec_term(
 
     match term:
         case L3.Let(bindings=bindings, body=body):
-            local = {name: (isinstance(value, L3.Reference) and bool(context.get(value.name, False))) for name, value in bindings}
+            local = {
+                name: (isinstance(value, L3.Reference) and bool(context.get(value.name, False)))
+                for name, value in bindings
+            }
             return L2.Let(
                 bindings=[(name, recur(value)) for name, value in bindings],
                 body=recur(body, context={**context, **local}),
@@ -26,10 +29,7 @@ def eliminate_letrec_term(
         case L3.LetRec(bindings=bindings, body=body):
             local = dict.fromkeys([name for name, _ in bindings], True)
             return L2.Let(
-                bindings=[
-                    (name, L2.Allocate(count=2))
-                    for name, _ in bindings
-                ],
+                bindings=[(name, L2.Allocate(count=2)) for name, _ in bindings],
                 body=L2.Begin(
                     effects=[
                         *[
