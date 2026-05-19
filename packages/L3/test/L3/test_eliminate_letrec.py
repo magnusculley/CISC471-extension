@@ -166,6 +166,23 @@ def test_check_term_load():
     assert actual == L2.Load(base=L2.Reference(name="x"), index=0)
 
 
+def test_eliminate_letrec_apply_non_closure_reference():
+    """Test Apply with a Reference target that is NOT a recursive binding (not in context)."""
+    term = L3.Apply(
+        target=L3.Reference(name="f"),
+        arguments=[L3.Immediate(value=1)],
+    )
+
+    expected = L2.Apply(
+        target=L2.Reference(name="f"),
+        arguments=[L2.Immediate(value=1)],
+    )
+
+    actual = eliminate_letrec_term(term, context={})
+
+    assert actual == expected
+
+
 def test_eliminate_letrec_store():
     term = L3.Store(
         base=L3.Allocate(count=1),
