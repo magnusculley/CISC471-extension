@@ -1,3 +1,5 @@
+# pyright: basic, reportUnknownVariableType=false, reportUnknownArgumentType=false, reportUnreachable=false
+
 from collections import Counter
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -111,9 +113,42 @@ def _expect_numeric(type_: Type, label: str) -> None:
         raise ValueError(f"{label} must be numeric")
 
 
+def _expect_integer(type_: Type, label: str) -> None:
+    if isinstance(type_, TypeUnknown):
+        return
+    if not isinstance(type_, TypeInt):
+        raise ValueError(f"{label} must be an integer")
+
+
 def _expect_function(type_: Type) -> TypeFunction | None:
     if isinstance(type_, TypeFunction):
         return type_
+    if isinstance(type_, TypeUnknown):
+        return None
+    raise ValueError("apply target must be a function")
+
+
+def _check_comparator(operator: str, left_type: Type, right_type: Type) -> None:
+    if operator == "<":
+        _expect_numeric(left_type, "Branch left operand for <")
+        _expect_numeric(right_type, "Branch right operand for <")
+        _ = _unify(left_type, right_type)
+        return
+
+    if operator == "==":
+        if isinstance(left_type, TypeTuple) and isinstance(right_type, TypeTuple):
+            if len(left_type.elements) != len(right_type.elements):
+                raise ValueError(
+                    f"Tuple equality requires equal lengths: {len(left_type.elements)} vs {len(right_type.elements)}"
+                )
+            for left_element, right_element in zip(left_type.elements, right_type.elements, strict=True):
+                _ = _unify(left_element, right_element)
+            return
+
+        _ = _unify(left_type, right_type)
+        return
+
+    raise ValueError(f"unknown comparator: {operator}")
     return None
 
 
@@ -154,7 +189,16 @@ def infer_term(
             }
 
             for name, value in bindings:
-                recur(value, context={**context, **local})
+                inferred = recur(value, context={**context, **local})
+                if not isinstance(inferred, TypeFunction):
+                    raise ValueError("LetRec binding must infer to a function")
+
+                declared = local[name]
+                if not isinstance(declared, TypeFunction):
+                    raise ValueError("internal error: letrec binder type is not a function")
+
+                returns = _unify(declared.returns, inferred.returns)
+                local[name] = TypeFunction(parameters=declared.parameters, returns=returns)
 
             return recur(body, context={**context, **local})
 
@@ -194,10 +238,10 @@ def infer_term(
             _expect_numeric(right_type, "Primitive right operand")
             return _unify(left_type, right_type)
 
-        case Branch(operator=_operator, left=left, right=right, consequent=consequent, otherwise=otherwise):
+        case Branch(operator=operator, left=left, right=right, consequent=consequent, otherwise=otherwise):
             left_type = recur(left)
             right_type = recur(right)
-            _ = _unify(left_type, right_type)
+            _check_comparator(operator, left_type, right_type)
 
             consequent_type = recur(consequent)
             otherwise_type = recur(otherwise)
@@ -205,7 +249,7 @@ def infer_term(
 
         case Allocate(count=count):
             count_type = TYPE_INT if isinstance(count, int) else recur(count)
-            _expect_numeric(count_type, "Allocate count")
+            _expect_integer(count_type, "Allocate count")
             return TypeMemory(element=TYPE_UNKNOWN)
 
         case Load(base=base, index=_index):
