@@ -8,6 +8,7 @@ from L3.syntax import (
     Branch,
     Float,
     Immediate,
+    Index,
     Let,
     LetRec,
     Load,
@@ -15,7 +16,6 @@ from L3.syntax import (
     Program,
     Reference,
     Store,
-    Index,
     Tuple,
 )
 
