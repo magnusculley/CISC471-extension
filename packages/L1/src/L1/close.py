@@ -93,7 +93,7 @@ def free_identifiers(statement: L1.Statement, bound: set[L1.Identifier]) -> list
                     used.append(element)
             return _merge_ordered(used, recur(then, {destination, *bound}))
 
-        case L1.Index(destination=destination, tuple=tuple, index=index, then=then):
+        case L1.Index(destination=destination, tuple=tuple, index=_index, then=then):
             used: list[L1.Identifier] = []
             if tuple not in bound:
                 used.append(tuple)

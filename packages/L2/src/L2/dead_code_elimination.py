@@ -61,7 +61,7 @@ def is_pure(term: Term) -> bool:
             return True
         case Tuple(elements=elements):
             return all(is_pure(element) for element in elements)
-        case Index(tuple=tuple, index=index):
+        case Index(tuple=tuple, index=_index):
             return is_pure(tuple)
 
 
@@ -138,7 +138,7 @@ def is_referenced(term: Term, target: Identifier, bound: set[Identifier]) -> boo
         case Tuple(elements=elements):
             return any(is_referenced(element, target, bound) for element in elements)
 
-        case Index(tuple=tuple, index=index):
+        case Index(tuple=tuple, index=_index):
             return is_referenced(tuple, target, bound)
 
 
