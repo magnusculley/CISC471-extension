@@ -21,7 +21,7 @@ class Procedure(BaseModel, frozen=True):
 
 
 type Statement = Annotated[
-    Copy | Immediate | Primitive | Branch | Allocate | Load | Store | Address | Call | Halt | Boolean | Float | Tuple,
+    Copy | Immediate | Primitive | Branch | Allocate | Load | Store | Address | Call | Halt | Boolean | Float | Tuple | Index,
     Field(discriminator="tag"),
 ]
 
@@ -117,7 +117,7 @@ class Float(BaseModel, frozen=True):
 class Tuple(BaseModel, frozen=True):
     tag: Literal["tuple"] = "tuple"
     destination: Identifier
-    elements: Sequence[Term]
+    elements: Sequence[Identifier]
     then: Statement
 
 
@@ -126,5 +126,5 @@ class Index(BaseModel, frozen=True):
     tag: Literal["index"] = "index"
     destination: Identifier
     tuple: Identifier
-    index: int
+    index: Nat
     then: Statement
