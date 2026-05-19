@@ -11,6 +11,7 @@ from .syntax import (
     Float,
     Identifier,
     Immediate,
+    Index,
     Let,
     Load,
     Primitive,
@@ -112,6 +113,9 @@ def constant_propagation_term(term: Term, context: Context) -> Term:
 
         case Tuple(elements=elements):
             return Tuple(elements=[recur(element) for element in elements])
+
+        case Index(tuple=tuple, index=index):
+            return Index(tuple=recur(tuple), index=index)
 
 
 def constant_propagation_program(program: Program) -> Program:

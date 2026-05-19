@@ -8,8 +8,11 @@ from .syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
     Immediate,
+    Index,
     Let,
     LetRec,
     Load,
@@ -18,6 +21,7 @@ from .syntax import (
     Reference,
     Store,
     Term,
+    Tuple,
 )
 
 type Context = Mapping[str, str]
@@ -111,6 +115,12 @@ def uniqify_term(
         case Tuple(elements=elements):
             return Tuple(
                 elements=[_term(element, context) for element in elements],
+            )
+
+        case Index(tuple=tuple, index=index):
+            return Index(
+                tuple=_term(tuple, context),
+                index=index,
             )
 
 

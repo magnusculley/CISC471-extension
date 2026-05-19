@@ -93,6 +93,12 @@ def eliminate_letrec_term(
         case L3.Boolean(value=value):
             return L2.Boolean(value=value)
 
+        case Tuple(elements=elements):
+            return L2.Tuple(elements=[recur(element) for element in elements])
+
+        case L3.Index(tuple=tuple, index=index):
+            return L2.Index(tuple=recur(tuple), index=index)
+
 
 def eliminate_letrec_program(
     program: L3.Program,

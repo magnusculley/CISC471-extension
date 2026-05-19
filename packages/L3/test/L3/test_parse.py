@@ -327,7 +327,7 @@ def test_parse_program_identity():
 
 
 def test_parse_float():
-    source = "(float 3.14)"
+    source = " 3.14 "
 
     expected = Float(value=3.14)
 
@@ -337,7 +337,7 @@ def test_parse_float():
 
 
 def test_parse_boolean():
-    source = "(boolean true)"
+    source = "true"
 
     expected = Boolean(value=True)
 
@@ -347,9 +347,22 @@ def test_parse_boolean():
 
 
 def test_parse_tuple():
-    source = "[1 2 3]"
+    source = "( 1 2 3 )"
 
     expected = Tuple(elements=[Immediate(value=1), Immediate(value=2), Immediate(value=3)])
+
+    actual = parse_term(source)
+
+    assert actual == expected
+
+
+def test_parse_index():
+    source = "( 1 2 3 )[1]"
+
+    expected = Index(
+        tuple=Tuple(elements=[Immediate(value=1), Immediate(value=2), Immediate(value=3)]),
+        index=1,
+    )
 
     actual = parse_term(source)
 

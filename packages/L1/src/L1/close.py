@@ -87,7 +87,17 @@ def free_identifiers(statement: L1.Statement, bound: set[L1.Identifier]) -> list
             return recur(then, {destination, *bound})
 
         case L1.Tuple(elements=elements, then=then):
-            ...
+            used: list[L1.Identifier] = []
+            for element in elements:
+                if element not in bound and element not in used:
+                    used.append(element)
+            return _merge_ordered(used, recur(then, set(bound)))
+
+        case L1.Index(tuple=tuple, index=index, then=then):
+            used: list[L1.Identifier] = []
+            if tuple not in bound:
+                used.append(tuple)
+            return _merge_ordered(used, recur(then, set(bound)))
 
         case _:  # pragma: no cover
             raise ValueError(statement)
@@ -236,6 +246,15 @@ def close_statement(
             next_context.pop(destination, None)
             return L0.Tuple(
                 elements=elements,
+                then=recur(then, next_context, procedures),
+            )
+
+        case L1.Index(tuple=tuple, index=index, then=then):
+            next_context = dict(context)
+            next_context.pop(destination, None)
+            return L0.Index(
+                tuple=tuple,
+                index=index,
                 then=recur(then, next_context, procedures),
             )
 

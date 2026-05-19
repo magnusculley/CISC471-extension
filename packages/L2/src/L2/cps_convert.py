@@ -201,6 +201,28 @@ def cps_convert_term(
                 then=k(destination),
             )
 
+        case L2.Tuple(elements=elements):
+            element_names = [fresh("t") for _ in elements]
+            return _terms(
+                elements,
+                lambda element_values: L1.Tuple(
+                    destination=(destination := fresh("t")),
+                    elements=element_values,
+                    then=k(destination),
+                ),
+            )
+
+        case L2.Index(tuple=tuple, index=index):
+            return _term(
+                tuple,
+                lambda tuple_value: L1.Index(
+                    destination=(destination := fresh("t")),
+                    tuple=tuple_value,
+                    index=index,
+                    then=k(destination),
+                ),
+            )
+
 
 def cps_convert_terms(
     terms: Sequence[L2.Term],

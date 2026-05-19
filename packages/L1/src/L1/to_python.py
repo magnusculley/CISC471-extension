@@ -13,11 +13,13 @@ from .syntax import (
     Float,
     Halt,
     Immediate,
+    Index,
     Load,
     Primitive,
     Program,
     Statement,
     Store,
+    Tuple,
 )
 
 
@@ -163,6 +165,18 @@ def to_ast_statement(
                     targets=[store(destination)],
                     value=ast.Tuple(
                         elts=[load(element) for element in elements],
+                        ctx=ast.Load(),
+                    ),
+                ),
+                *_statement(then),
+            ]
+        case Index(destination=destination, tuple=tuple, index=index, then=then):
+            return [
+                ast.Assign(
+                    targets=[store(destination)],
+                    value=ast.Subscript(
+                        value=load(tuple),
+                        slice=ast.Constant(index),
                         ctx=ast.Load(),
                     ),
                 ),

@@ -8,6 +8,7 @@ from .syntax import (
     Float,
     Identifier,
     Immediate,
+    Index,
     Let,
     Load,
     Primitive,
@@ -60,6 +61,8 @@ def is_pure(term: Term) -> bool:
             return True
         case Tuple(elements=elements):
             return all(is_pure(element) for element in elements)
+        case Index(tuple=tuple, index=index):
+            return is_pure(tuple)
 
 
 def is_referenced(term: Term, target: Identifier, bound: set[Identifier]) -> bool:
@@ -125,6 +128,18 @@ def is_referenced(term: Term, target: Identifier, bound: set[Identifier]) -> boo
                     return True
 
             return False
+
+        case Float():
+            return False
+
+        case Boolean():
+            return False
+
+        case Tuple(elements=elements):
+            return any(is_referenced(element, target, bound) for element in elements)
+
+        case Index(tuple=tuple, index=index):
+            return is_referenced(tuple, target, bound)
 
 
 def dead_code_elimination_term(term: Term) -> Term:
@@ -201,6 +216,18 @@ def dead_code_elimination_term(term: Term) -> Term:
                 return dce_value
 
             return Begin(effects=dce_effects, value=dce_value)
+
+        case Float():
+            return term
+
+        case Boolean():
+            return term
+
+        case Tuple(elements=elements):
+            return Tuple(elements=[recur(element) for element in elements])
+
+        case Index(tuple=tuple, index=index):
+            return Index(tuple=recur(tuple), index=index)
 
 
 def dead_code_elimination_program(program: Program) -> Program:

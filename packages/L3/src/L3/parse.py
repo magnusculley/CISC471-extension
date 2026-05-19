@@ -238,6 +238,15 @@ class AstTransformer(Transformer[Token, Program | Term]):
     ) -> Term:
         return Tuple(elements=list(elements))
 
+    @v_args(inline=True)
+    def index(
+        self,
+        _index: Token,
+        tuple: Term,
+        index: int,
+    ) -> Term:
+        return Index(tuple=tuple)
+
 
 def parse_term(source: str) -> Term:
     grammar = Path(__file__).with_name("L3.lark").read_text()

@@ -115,3 +115,10 @@ class Float(BaseModel, frozen=True):
 class Tuple(BaseModel, frozen=True):
     tag: Literal["tuple"] = "tuple"
     elements: Sequence[Term]
+
+
+# term for indexing a tuple
+class Index(BaseModel, frozen=True):
+    tag: Literal["index"] = "index"
+    tuple: Term
+    index: int

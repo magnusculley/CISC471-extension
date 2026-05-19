@@ -119,3 +119,12 @@ class Tuple(BaseModel, frozen=True):
     destination: Identifier
     elements: Sequence[Term]
     then: Statement
+
+
+# term for indexing a tuple
+class Index(BaseModel, frozen=True):
+    tag: Literal["index"] = "index"
+    destination: Identifier
+    tuple: Identifier
+    index: int
+    then: Statement

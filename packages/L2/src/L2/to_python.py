@@ -140,6 +140,12 @@ def to_ast_term(
                 elts=[_term(element) for element in elements],
                 ctx=ast.Load(),
             )
+        case Index(tuple=tuple, index=index):
+            return ast.Subscript(
+                value=_term(tuple),
+                slice=ast.Constant(value=index),
+                ctx=ast.Load(),
+            )
 
 
 def to_ast_program(

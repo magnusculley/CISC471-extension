@@ -12,6 +12,7 @@ from .syntax import (
     Float,
     Identifier,
     Immediate,
+    Index,
     Let,
     LetRec,
     Load,
@@ -120,6 +121,9 @@ def check_term(
         case Tuple(elements=elements):
             for element in elements:
                 recur(element)
+
+        case Index(tuple=tuple, index=_index):
+            recur(tuple)
 
 
 def check_program(

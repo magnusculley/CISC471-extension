@@ -111,32 +111,24 @@ class Begin(BaseModel, frozen=True):
     value: Term
 
 
-class Boolean(BaseModel, frozen=True):
-    tag: Literal["boolean"] = "boolean"
-    value: bool
-
-
-class Tuple(BaseModel, frozen=True):
-    tag: Literal["tuple"] = "tuple"
-    elements: Sequence[Term]
-
-
-class Float(BaseModel, frozen=True):
-    tag: Literal["float"] = "float"
-    value: float
-
-
 # new types
 class Boolean(BaseModel, frozen=True):
     tag: Literal["boolean"] = "boolean"
     value: bool
 
 
+class Tuple(BaseModel, frozen=True):
+    tag: Literal["tuple"] = "tuple"
+    elements: Sequence[Term]
+
+
 class Float(BaseModel, frozen=True):
     tag: Literal["float"] = "float"
     value: float
 
 
-class Tuple(BaseModel, frozen=True):
-    tag: Literal["tuple"] = "tuple"
-    elements: Sequence[Term]
+# term for indexing a tuple
+class Index(BaseModel, frozen=True):
+    tag: Literal["index"] = "index"
+    tuple: Term
+    index: int

@@ -12,6 +12,7 @@ from .syntax import (
     Branch,
     Float,
     Immediate,
+    Index,
     Let,
     LetRec,
     Load,
@@ -169,6 +170,13 @@ def to_ast_term(
         case Tuple(elements=elements):
             return ast.Tuple(
                 elts=[_term(element) for element in elements],
+                ctx=ast.Load(),
+            )
+
+        case Index(tuple=tuple):
+            return ast.Subscript(
+                value=_term(tuple),
+                slice=ast.Constant(value=index),
                 ctx=ast.Load(),
             )
 
