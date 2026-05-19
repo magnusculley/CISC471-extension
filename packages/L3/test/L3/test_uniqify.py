@@ -3,7 +3,9 @@ from L3.syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
     Immediate,
     Let,
     LetRec,
@@ -12,6 +14,7 @@ from L3.syntax import (
     Program,
     Reference,
     Store,
+    Tuple,
 )
 from L3.uniqify import Context, uniqify_program, uniqify_term
 from util.sequential_name_generator import SequentialNameGenerator
@@ -215,6 +218,41 @@ def test_uniqify_term_branch_load_store_begin():
             otherwise=Reference(name="y0"),
         ),
     )
+
+    assert actual == expected
+
+    def test_uniqify_term_float():
+        term = Float(value=3.14)
+
+        context: Context = dict[str, str]()
+        fresh = SequentialNameGenerator()
+        actual = uniqify_term(term, context, fresh)
+
+        expected = Float(value=3.14)
+
+        assert actual == expected
+
+
+def test_uniqify_term_boolean():
+    term = Boolean(value=True)
+
+    context: Context = dict[str, str]()
+    fresh = SequentialNameGenerator()
+    actual = uniqify_term(term, context, fresh)
+
+    expected = Boolean(value=True)
+
+    assert actual == expected
+
+
+def test_uniqify_term_tuple():
+    term = Tuple(elements=[Immediate(value=1), Immediate(value=2), Immediate(value=3)])
+
+    context: Context = dict[str, str]()
+    fresh = SequentialNameGenerator()
+    actual = uniqify_term(term, context, fresh)
+
+    expected = Tuple(elements=[Immediate(value=1), Immediate(value=2), Immediate(value=3)])
 
     assert actual == expected
 

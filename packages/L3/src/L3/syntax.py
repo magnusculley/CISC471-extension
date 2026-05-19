@@ -15,7 +15,22 @@ class Program(BaseModel, frozen=True):
 
 
 type Term = Annotated[
-    Let | Reference | Abstract | Apply | Immediate | Primitive | Branch | Allocate | Load | Store | Begin | LetRec,
+    Let
+    | Reference
+    | Abstract
+    | Apply
+    | Immediate
+    | Primitive
+    | Branch
+    | Allocate
+    | Load
+    | Store
+    | Begin
+    | LetRec
+    | Boolean
+    | Float
+    | Tuple
+    | Index,
     Field(discriminator="tag"),
 ]
 
@@ -92,3 +107,26 @@ class Begin(BaseModel, frozen=True):
     tag: Literal["begin"] = "begin"
     effects: Sequence[Term]
     value: Term
+
+
+# new types
+class Boolean(BaseModel, frozen=True):
+    tag: Literal["boolean"] = "boolean"
+    value: bool
+
+
+class Tuple(BaseModel, frozen=True):
+    tag: Literal["tuple"] = "tuple"
+    elements: Sequence[Term]
+
+
+class Float(BaseModel, frozen=True):
+    tag: Literal["float"] = "float"
+    value: float
+
+
+# term for indexing a tuple
+class Index(BaseModel, frozen=True):
+    tag: Literal["index"] = "index"
+    tuple: Term
+    index: Nat

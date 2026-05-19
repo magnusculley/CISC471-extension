@@ -21,7 +21,20 @@ class Procedure(BaseModel, frozen=True):
 
 
 type Statement = Annotated[
-    Copy | Immediate | Primitive | Branch | Allocate | Load | Store | Address | Call | Halt,
+    Copy
+    | Immediate
+    | Primitive
+    | Branch
+    | Allocate
+    | Load
+    | Store
+    | Address
+    | Call
+    | Halt
+    | Boolean
+    | Float
+    | Tuple
+    | Index,
     Field(discriminator="tag"),
 ]
 
@@ -97,3 +110,34 @@ class Call(BaseModel, frozen=True):
 class Halt(BaseModel, frozen=True):
     tag: Literal["halt"] = "halt"
     value: Identifier
+
+
+# new types
+class Boolean(BaseModel, frozen=True):
+    tag: Literal["boolean"] = "boolean"
+    destination: Identifier
+    value: bool
+    then: Statement
+
+
+class Float(BaseModel, frozen=True):
+    tag: Literal["float"] = "float"
+    destination: Identifier
+    value: float
+    then: Statement
+
+
+class Tuple(BaseModel, frozen=True):
+    tag: Literal["tuple"] = "tuple"
+    destination: Identifier
+    elements: Sequence[Identifier]
+    then: Statement
+
+
+# term for indexing a tuple
+class Index(BaseModel, frozen=True):
+    tag: Literal["index"] = "index"
+    destination: Identifier
+    tuple: Identifier
+    index: Nat
+    then: Statement

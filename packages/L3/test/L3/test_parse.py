@@ -4,8 +4,11 @@ from L3.syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
+    Float,
     Immediate,
+    Index,
     Let,
     LetRec,
     Load,
@@ -13,6 +16,7 @@ from L3.syntax import (
     Program,
     Reference,
     Store,
+    Tuple,
 )
 
 # The starter tests for parser already covered 100% branch coverage,
@@ -155,9 +159,9 @@ def test_parse_immediate():
 
 
 # Primitive
-# Parses + 1 2 - addition operation, 1+2
+# Parses 1 + 2 - addition operation, 1+2
 def test_parse_add():
-    source = "+ 1 2"
+    source = "1 + 2"
 
     expected = Primitive(
         operator="+",
@@ -170,9 +174,9 @@ def test_parse_add():
     assert actual == expected
 
 
-# Parses - 3 2 - subtraction operation, 3-2
+# Parses 3 - 2 - subtraction operation, 3-2
 def test_parse_subtract():
-    source = "- 3 2"
+    source = "3 - 2"
 
     expected = Primitive(
         operator="-",
@@ -185,9 +189,9 @@ def test_parse_subtract():
     assert actual == expected
 
 
-# Parses * 2 3 - multiplication operation, 2*3
+# Parses 2 * 3 - multiplication operation, 2*3
 def test_parse_multiply():
-    source = "* 2 3"
+    source = "2 * 3"
     expected = Primitive(
         operator="*",
         left=Immediate(value=2),
@@ -198,9 +202,9 @@ def test_parse_multiply():
 
 
 # Branch
-# Parses if(< 1 2) { 1 } else { 0 } - evaluates that the constructed branch is a less-than check, if 1<2 then 1 else 0.
+# Parses if(1 < 2) { 1 } else { 0 } - evaluates that the constructed branch is a less-than check, if 1<2 then 1 else 0.
 def test_parse_less_than():
-    source = "if(< 1 2) { 1 } else { 0 }"
+    source = "if(1 < 2) { 1 } else { 0 }"
 
     expected = Branch(
         operator="<",
@@ -215,9 +219,9 @@ def test_parse_less_than():
     assert actual == expected
 
 
-# Parses if(== 1 1) { 1 } else { 0 } - evaluates that the constructed branch is an equality check, if 1==1 then 1 else 0.
+# Parses if(1 == 1) { 1 } else { 0 } - evaluates that the constructed branch is an equality check, if 1==1 then 1 else 0.
 def test_parse_equal_to():
-    source = "if(== 1 1) { 1 } else { 0 }"
+    source = "if(1 == 1) { 1 } else { 0 }"
 
     expected = Branch(
         operator="==",
@@ -319,5 +323,48 @@ def test_parse_program_identity():
     )
 
     actual = parse_program(source)
+
+    assert actual == expected
+
+
+def test_parse_float():
+    source = " 3.14 "
+
+    expected = Float(value=3.14)
+
+    actual = parse_term(source)
+
+    assert actual == expected
+
+
+def test_parse_boolean():
+    source = "true"
+
+    expected = Boolean(value=True)
+
+    actual = parse_term(source)
+
+    assert actual == expected
+
+
+def test_parse_tuple():
+    source = "( 1 2 3 )"
+
+    expected = Tuple(elements=[Immediate(value=1), Immediate(value=2), Immediate(value=3)])
+
+    actual = parse_term(source)
+
+    assert actual == expected
+
+
+def test_parse_index():
+    source = "( 1 2 3 )[1]"
+
+    expected = Index(
+        tuple=Tuple(elements=[Immediate(value=1), Immediate(value=2), Immediate(value=3)]),
+        index=1,
+    )
+
+    actual = parse_term(source)
 
     assert actual == expected

@@ -192,6 +192,43 @@ def cps_convert_term(
                 case _:  # pragma: no cover
                     raise ValueError(effects)
 
+        case L2.Float(value=value):
+            destination = fresh("t")
+            return L1.Float(
+                destination=destination,
+                value=value,
+                then=k(destination),
+            )
+
+        case L2.Boolean(value=value):
+            destination = fresh("t")
+            return L1.Boolean(
+                destination=destination,
+                value=value,
+                then=k(destination),
+            )
+
+        case L2.Tuple(elements=elements):
+            return _terms(
+                elements,
+                lambda element_values: L1.Tuple(
+                    destination=(destination := fresh("t")),
+                    elements=element_values,
+                    then=k(destination),
+                ),
+            )
+
+        case L2.Index(tuple=tuple, index=index):
+            return _term(
+                tuple,
+                lambda tuple_value: L1.Index(
+                    destination=(destination := fresh("t")),
+                    tuple=tuple_value,
+                    index=index,
+                    then=k(destination),
+                ),
+            )
+
         case _:  # pragma: no cover
             raise ValueError(term)
 
