@@ -91,13 +91,23 @@ def to_ast_statement(
             ]
 
         case Allocate(destination=destination, count=count, then=then):
+            count_ast: ast.expr
+            if isinstance(count, int):
+                count_ast = ast.List(
+                    elts=[ast.Constant(None) for _ in range(count)],
+                    ctx=ast.Load(),
+                )
+            else:
+                count_ast = ast.BinOp(
+                    left=ast.List(elts=[ast.Constant(None)], ctx=ast.Load()),
+                    op=ast.Mult(),
+                    right=load(count),
+                )
+
             return [
                 ast.Assign(
                     targets=[store(destination)],
-                    value=ast.List(
-                        elts=[ast.Constant(None) for _ in range(count)],
-                        ctx=ast.Load(),
-                    ),
+                    value=count_ast,
                 ),
                 *_statement(then),
             ]

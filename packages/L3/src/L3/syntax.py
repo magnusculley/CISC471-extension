@@ -72,7 +72,7 @@ class Branch(BaseModel, frozen=True):
 
 class Allocate(BaseModel, frozen=True):
     tag: Literal["allocate"] = "allocate"
-    count: Nat
+    count: Nat | Term
 
 
 class Load(BaseModel, frozen=True):
